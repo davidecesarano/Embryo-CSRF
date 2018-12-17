@@ -1,0 +1,29 @@
+{
+    "name": "davidecesarano/embryo-csrf",
+    "type": "library",
+    "description": "PSR-15 middleware to prevent CSRF.",
+    "keywords": [
+        "php",
+        "psr-15",
+        "csrf"
+    ],
+    "homepage": "https://github.com/davidecesarano/embryo-csrf",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Davide Cesarano",
+            "homepage": "https://github.com/davidecesarano"
+        }
+    ],
+    "require": {
+        "php": ">=7.1",
+        "davidecesarano/embryo-http": "dev-master",
+        "davidecesarano/embryo-middleware": "dev-master",
+        "davidecesarano/embryo-session": "dev-master"
+    },
+    "autoload": {
+        "psr-4": {
+            "Embryo\\": "Embryo/"
+        }
+    }
+}
