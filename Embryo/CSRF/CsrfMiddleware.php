@@ -21,7 +21,7 @@
         /**
          * @var string sessionAttribute
          */
-        private $sessionAttribute = 'session';
+        private $sessionRequestAttribute = 'session';
 
         /**
          * @var array acceptMethods
@@ -31,7 +31,7 @@
         /**
          * @var string $formKey
          */
-        private $formKey = 'csrf_token';
+        private $formInputName = 'csrf_token';
 
         /**
          * @var string $sessionKey
@@ -43,21 +43,52 @@
          */
         private $limit = 5;
 
-        public function setSessionAttribute(string $sessionAttribute): self
+        /**
+         * Set session request attribute.
+         *
+         * @param string $sessionAttribute
+         * @return self
+         */
+        public function setSessionRequestAttribute(string $sessionRequestAttribute): self
         {
-            $this->sessionAttribute = $sessionAttribute;
+            $this->sessionRequestAttribute = $sessionRequestAttribute;
             return $this;
         }
 
-        public function setFormKey(string $formKey): self
+        /**
+         * Set form input name.
+         *
+         * @param string $formInputName
+         * @return self
+         */
+        public function setFormInputName(string $formInputName): self
         {
-            $this->formKey = $formKey;
+            $this->formInputName = $formInputName;
             return $this;
         }
 
+        /**
+         * Set session key.
+         *
+         * @param string $sessionKey
+         * @return self
+         */
         public function setSessionKey(string $sessionKey): self
         {
             $this->sessionKey = $sessionKey;
+            return $this;
+        }
+
+        /**
+         * Set limit the number of token 
+         * to store in the session.
+         *
+         * @param integer $limit
+         * @return self
+         */
+        public function setLimit(int $limit): self 
+        {
+            $this->limit = $limit;
             return $this;
         }
 
@@ -72,18 +103,18 @@
          */
         public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
         {
-            $session = $request->getAttribute($this->sessionAttribute);
+            $session = $request->getAttribute($this->sessionRequestAttribute);
 
             if (in_array($request->getMethod(), $this->allowMethods, true)) {
                 
                 $params = $request->getParsedBody() ?: [];
-                if (!array_key_exists($this->formKey, $params)) {
+                if (!array_key_exists($this->formInputName, $params)) {
                     throw new NoCsrfTokenException('CSRF token missing');
                 }
-                if (!in_array($params[$this->formKey], $session->get($this->sessionKey, []), true)) {
+                if (!in_array($params[$this->formInputName], $session->get($this->sessionKey, []), true)) {
                     throw new InvalidCsrfTokenException('Invalid CSRF token');
                 }
-                $this->removeToken($session, $params[$this->formKey]);
+                $this->removeToken($session, $params[$this->formInputName]);
 
             } else {
                 $this->generateToken($session);
