@@ -44,6 +44,11 @@
         private $limit = 5;
 
         /**
+         * @var array $except
+         */
+        private $except = [];
+
+        /**
          * Set session request attribute.
          *
          * @param string $sessionAttribute
@@ -93,6 +98,18 @@
         }
 
         /**
+         * Set uri exceptions.
+         *
+         * @param array $except
+         * @return self
+         */
+        public function setExcept(array $except): self
+        {
+            $this->except = $except;
+            return $this;
+        }
+
+        /**
          * Process a server request and return a response.
          *
          * @param ServerRequestInterface $request
@@ -103,8 +120,11 @@
          */
         public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
         {
-            $session = $request->getAttribute($this->sessionRequestAttribute);
+            if ($this->isExcept($request)) {
+                return $handler->handle($request);
+            }
 
+            $session = $request->getAttribute($this->sessionRequestAttribute);
             if (in_array($request->getMethod(), $this->allowMethods, true)) {
                 
                 $params = $request->getParsedBody() ?: [];
@@ -158,5 +178,27 @@
             );
 
             $session->set($this->sessionKey, $tokens);
+        }
+
+        /**
+         * Exclude uri from CSRF protection.
+         *
+         * @param ServerRequestInterface $request
+         * @return bool
+         */
+        private function isExcept(ServerRequestInterface $request): bool
+        {
+            $path = trim($request->getUri()->getPath(), '/');
+            if (!empty($this->except)) {
+                foreach ($this->except as $except) {
+                    $except = str_replace('*', '(.*)', $except);
+                    $except = str_replace('/', '\/', $except);
+                    $regex  = '/^'.$except.'$/';
+                    if (preg_match($regex, $path)) {
+                        return true;
+                    }
+                }
+            }
+            return false;
         }
     }
