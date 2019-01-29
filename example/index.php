@@ -4,7 +4,7 @@
     
     use Embryo\CSRF\CsrfMiddleware;
     use Embryo\Http\Emitter\Emitter;
-    use Embryo\Http\Server\MiddlewareDispatcher;
+    use Embryo\Http\Server\RequestHandler;
     use Embryo\Http\Factory\{ServerRequestFactory, ResponseFactory};
     use Embryo\Session\Session;
     use Embryo\Session\Middleware\SessionMiddleware;
@@ -16,7 +16,8 @@
     $request    = (new ServerRequestFactory)->createServerRequestFromServer();
     $response   = (new ResponseFactory)->createResponse();
     $session    = new Session;
-    $middleware = new MiddlewareDispatcher;
+    $middleware = new RequestHandler;
+    $emitter    = new Emitter;
 
     class GenerateInputMiddleware implements MiddlewareInterface
     {
@@ -41,5 +42,4 @@
     $middleware->add(GenerateInputMiddleware::class);
     $response = $middleware->dispatch($request, $response);
 
-    $emitter = new Emitter;
     $emitter->emit($response);
