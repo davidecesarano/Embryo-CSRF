@@ -18,14 +18,15 @@ $ composer require davidecesarano/embryo-csrf
 Add `Embryo\CSRF\CsrfMiddleware` to middleware dispatcher:
 ```php
 use Embryo\Http\Emitter\Emitter;
-use Embryo\Http\Server\MiddlewareDispatcher;
+use Embryo\Http\Server\RequestHandler;
 use Embryo\Http\Factory\{ServerRequestFactory, ResponseFactory};
 use Embryo\CSRF\CsrfMiddleware;
 
 $request    = (new ServerRequestFactory)->createServerRequestFromServer();
 $response   = (new ResponseFactory)->createResponse();
 $session    = new Session;
-$middleware = new MiddlewareDispatcher;
+$middleware = new RequestHandler;
+$emitter    = new Emitter;
 
 // example: generate form input
 class GenerateInputMiddleware implements MiddlewareInterface
@@ -56,7 +57,7 @@ $middleware->add(CsrfMiddleware::class);
 $middleware->add(GenerateInputMiddleware::class);
 
 $response = $middleware->dispatch($request, $response);
-$emitter = new Emitter;
+
 $emitter->emit($response);
 ```
 You may quickly test this using the built-in PHP server going to http://localhost:8000.
